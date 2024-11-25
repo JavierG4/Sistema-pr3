@@ -3,10 +3,11 @@ import pymunk
 import random
 
 
-
+# Dimensiones de la pantalla
 disp_w = 600
 disp_h = 600
-n_balls = 50
+
+n_balls = 50 # Número de bolas que se van a crear
 
 # Configuración de Pygame
 pygame.init()
