@@ -55,6 +55,11 @@ space.add(segment_body2, segment_shape2)
 handler = space.add_collision_handler(1,2)
 handler.separate = collide
 
+# begin -> Se invoca cuando dos figuras comienzan a colisionar (Tiene informñacion de la colisión, pero no de la fuerza)
+# separate -> Se invoca cuando dos figuras dejan de colisionar
+# pre_solve -> Se invoca antes de resolver la colisión (devuelve true si se debe resolver la colisión)
+# post_solve -> Se invoca después de resolver la colisión
+
 running = True
 while running:
   for event in pygame.event.get():
