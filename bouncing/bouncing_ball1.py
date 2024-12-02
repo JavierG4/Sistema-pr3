@@ -3,8 +3,8 @@ import pymunk
 
 # Configuración de Pygame
 pygame.init()
-disp_h = 800
-disp_w = 600
+disp_h = 900
+disp_w = 800
 display = pygame.display.set_mode((disp_w,disp_h))
 clock = pygame.time.Clock()
 
