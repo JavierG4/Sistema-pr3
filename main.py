@@ -1,6 +1,7 @@
 import pygame
 import random
 import pymunk
+from entregable.crear_cuadrado import create_square
 
 
 # Crear listas de  
@@ -11,7 +12,7 @@ def remove_object_by_id(objects, id):
       break
 
 collision_types = {
-  "ball": 1,
+  "Enemigo": 1,
   "power_up": 2,
   "bottom": 3,
   "player": 4,
@@ -26,7 +27,7 @@ def convert_coordinates(point):
 
 # Configuración de Pygame
 pygame.init()
-disp_h = 900
+disp_h = 800
 disp_w = 800
 display = pygame.display.set_mode((disp_w, disp_h))
 clock = pygame.time.Clock()
@@ -65,20 +66,33 @@ def remove_object(arbiter, space, data):
   return True
 
 # Configuración de colisiones
-handler = space.add_collision_handler(collision_types["ball"], collision_types["bottom"])
+handler = space.add_collision_handler(collision_types["Enemigo"], collision_types["bottom"])
 handler.begin = remove_object
 
 # Body y shape de la pelota Temporal
-body = pymunk.Body()
-body.position = (300, 600)
-shape = pymunk.Circle(body, 20)
-shape.density = 1
-shape.id = 1
-Vector_objetos_enemigos.append(shape)
-shape.collision_type = collision_types["ball"]
-space.add(body, shape)
+bodyp = pymunk.Body()
+bodyp.position = (300, 600)
+shapep = pymunk.Circle(bodyp, 20)
+shapep.density = 1
+shapep.collision_type = collision_types["player"]
+space.add(bodyp, shapep)
 
 running = True
+
+#Creacion de cuadrados
+for i in range(5):
+  x_position = random.randint(0, disp_w)
+  y_position = disp_h - 10  # Cerca del techo
+  size = 30  # Tamaño del cuadrado
+  body = pymunk.Body()
+  body.position = (x_position, y_position)
+  shape = pymunk.Poly.create_box(body, (size, size))
+  shape.density = 1
+  shape.id = i + 2  # IDs únicos para cada cuadrado
+  shape.collision_type = collision_types["Enemigo"]
+  Vector_objetos_enemigos.append(shape)
+  space.add(body, shape)
+
 while running:
 
   for event in pygame.event.get():
@@ -86,10 +100,11 @@ while running:
       running = False
 
   display.fill((255, 255, 255))
-  
   for obj in Vector_objetos_enemigos:
-    pygame.draw.circle(display, (255, 0, 0), convert_coordinates(obj.body.position), int(obj.radius))
+    vertices = [convert_coordinates(v.rotated(obj.body.angle) + obj.body.position) for v in obj.get_vertices()]
+    pygame.draw.polygon(display, (255, 0,255), vertices)
   
+  pygame.draw.circle(display, (255, 0, 0), convert_coordinates(bodyp.position), int(shapep.radius))
   pygame.draw.line(display, (0, 0, 0), convert_coordinates((0, disp_h)), convert_coordinates((disp_w, disp_h)), 10)
   pygame.draw.line(display, (0, 0, 0), (disp_w, disp_h), (disp_w, 0), 10)
   pygame.draw.line(display, (0, 0, 0), (0, disp_h), (0, 0), 10)
