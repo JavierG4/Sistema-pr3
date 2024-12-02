@@ -23,7 +23,15 @@ def convert_coordinates (point):
 
 def collide(arbiter,space,data):
   #arbiter.shapes[0].collision_type = 2
-  arbiter.shapes[0].color = pygame.Color("yellow")
+  #arbiter.shapes[0].color = pygame.Color("yellow")
+  #Elimina la bola que colisiona
+  ball_shape = arbiter.shapes[0]
+  space.remove(ball_shape, ball_shape.body)
+  for ball in balls:
+    if ball.shape == ball_shape:
+      balls.remove(ball)
+      break
+  
 
 class Ball():
   def __init__(self,x,y,radius = 10,collision_type = 1):

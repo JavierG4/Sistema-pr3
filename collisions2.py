@@ -52,8 +52,15 @@ segment_shape2 = pymunk.Segment(segment_body2, (0,disp_h - 50),(disp_w,disp_h - 
 segment_shape2.elasticity = 1
 space.add(segment_body2, segment_shape2)
 
-handler = space.add_collision_handler(1,2)
-handler.separate = collide
+handler = space.add_collision_handler(1,2) # 1 y 2 son los collision_types de los objetos que queremos que colisionen
+handler.separate = collide # Función que se ejecuta cuando los objetos colisionan
+
+# En cada colision hay un begin, un pre_solve, un post_solve y un separate
+# Si nos da un false en pre_solve, no se ejecuta el post_solve
+# Hay sensores tambien 
+# El begin tiene informacion de la colision
+# El post_solve tiene informacion de la colision y de la velocidad
+# El separate tiene informacion de la colision y de la velocidad
 
 running = True
 while running:

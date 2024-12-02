@@ -45,7 +45,7 @@ class Ball():
       color = (0,0,255)
     pygame.draw.circle(display,color,convert_coordinates(self.body.position),self.radius)
 
-balls = [Ball(random.randint(20,disp_w-20),random.randint(20,disp_h-20)) for x in range(n_balls)]
+balls = [Ball(random.randint(20,disp_w-20),random.randint(20,disp_h-20)) for x in range(n_balls)] # Lista de objetos Ball
 balls.append(Ball(random.randint(20,disp_w-20),random.randint(20,disp_h-20),collision_type=2))
 segment_body = pymunk.Body(body_type=pymunk.Body.STATIC)
 segment_shape = pymunk.Segment(segment_body, (0,0),(disp_w,0),5)
