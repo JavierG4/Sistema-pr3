@@ -1,11 +1,16 @@
 import mediapipe as mp
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
+from mediapipe import solutions
+from mediapipe.framework.formats import landmark_pb2
 import numpy as np
 import cv2
 import pygame
+import pymunk
 import time
 
-# Configuración de MediaPipe
-model_path = 'hand_landmarker.task'  # Asegúrate de que este archivo esté en la ubicación correcta
+# Configuración para MediaPipe
+model_path = 'hand_landmarker.task'  # Asegúrate de que este modelo esté disponible
 
 BaseOptions = mp.tasks.BaseOptions
 HandLandmarker = mp.tasks.vision.HandLandmarker
