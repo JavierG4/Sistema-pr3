@@ -1,7 +1,6 @@
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
-from mediapipe import solutions
 from mediapipe.framework.formats import landmark_pb2
 import numpy as np
 import cv2
@@ -9,8 +8,8 @@ import pygame
 import pymunk
 import time
 
-# Configuración para MediaPipe
-model_path = 'hand_landmarker.task'  # Asegúrate de que este modelo esté disponible
+# Configuración del modelo MediaPipe
+model_path = 'hand_landmarker.task'
 
 BaseOptions = mp.tasks.BaseOptions
 HandLandmarker = mp.tasks.vision.HandLandmarker
@@ -19,59 +18,68 @@ HandLandmarkerResult = mp.tasks.vision.HandLandmarkerResult
 VisionRunningMode = mp.tasks.vision.RunningMode
 detection_result = None
 
-# Inicialización de Pygame
+# Inicializar Pygame
 pygame.init()
-screen = pygame.display.set_mode((800, 600))  # Tamaño de la ventana Pygame
+screen = pygame.display.set_mode((640, 480))
 clock = pygame.time.Clock()
 
-# Parámetros del círculo
-circle_radius = 30
-circle_color = (255, 0, 0)  # Rojo
-circle_x, circle_y = 400, 300  # Posición inicial del círculo
+# Configuración de Pymunk
+space = pymunk.Space()
+space.gravity = (0, 0)  # Sin gravedad para movimiento libre
+
+# Crear un círculo en Pymunk
+body = pymunk.Body(body_type=pymunk.Body.KINEMATIC)
+body.position = (320, 240)  # Posición inicial
+circle = pymunk.Circle(body, 20)
+space.add(body, circle)
 
 # Función para procesar los resultados de MediaPipe
 def get_result(result: HandLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
     global detection_result
     detection_result = result
 
-# Función para dibujar los puntos de la mano en la imagen
+# Función para dibujar marcas en la imagen
 def draw_landmarks_on_image(rgb_image, detection_result):
     hand_landmarks_list = detection_result.hand_landmarks
     annotated_image = np.copy(rgb_image)
 
-    # Loop through the detected hands to visualize.
     for idx in range(len(hand_landmarks_list)):
         hand_landmarks = hand_landmarks_list[idx]
-
-        # Draw the hand landmarks.
         hand_landmarks_proto = landmark_pb2.NormalizedLandmarkList()
         hand_landmarks_proto.landmark.extend([
             landmark_pb2.NormalizedLandmark(x=landmark.x, y=landmark.y, z=landmark.z) for landmark in hand_landmarks
         ])
-        solutions.drawing_utils.draw_landmarks(
+        mp.solutions.drawing_utils.draw_landmarks(
             annotated_image,
             hand_landmarks_proto,
-            solutions.hands.HAND_CONNECTIONS,
-            solutions.drawing_styles.get_default_hand_landmarks_style(),
-            solutions.drawing_styles.get_default_hand_connections_style())
-
+            mp.solutions.hands.HAND_CONNECTIONS,
+            mp.solutions.drawing_styles.get_default_hand_landmarks_style(),
+            mp.solutions.drawing_styles.get_default_hand_connections_style())
     return annotated_image
 
-# Opciones para el HandLandmarker
+# Configurar opciones para MediaPipe
 options = HandLandmarkerOptions(
     base_options=BaseOptions(model_asset_path=model_path),
     running_mode=VisionRunningMode.LIVE_STREAM,
     result_callback=get_result)
 
+# Usar MediaPipe HandLandmarker
 with HandLandmarker.create_from_options(options) as landmarker:
     cap = cv2.VideoCapture(0)
+    running = True
 
-    while cap.isOpened():
+    while cap.isOpened() and running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
         success, image = cap.read()
         if not success:
             print("Ignoring empty camera frame.")
             continue
-        image = cv2.flip(image, 1)
+
+        # Procesar imagen con MediaPipe
+        image = cv2.flip(image, 1)  # Voltear horizontalmente
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image)
         frame_timestamp_ms = int(time.time() * 1000)
         landmarker.detect_async(mp_image, frame_timestamp_ms)
@@ -79,34 +87,34 @@ with HandLandmarker.create_from_options(options) as landmarker:
         if detection_result is not None:
             image = draw_landmarks_on_image(mp_image.numpy_view(), detection_result)
 
-            # Si se han detectado manos
+            # Si se detecta la mano
             if len(detection_result.hand_landmarks) > 0:
                 landmarks = detection_result.hand_landmarks[0]
-                # Obtener las coordenadas del punto 8 (dedo índice)
                 index_finger_tip = landmarks[8]
 
-                # Convertir las coordenadas normalizadas a píxeles
-                height, width, _ = image.shape
-                finger_x = int(index_finger_tip.x * width)
-                finger_y = int(index_finger_tip.y * height)
+                # Convertir coordenadas normalizadas a píxeles
+                screen_x = int(index_finger_tip.x * 640)
+                screen_y = int(index_finger_tip.y * 480)
 
-                # Actualizar la posición del círculo en Pygame
-                circle_x, circle_y = finger_x, finger_y
+                # Actualizar posición del círculo
+                body.position = screen_x, screen_y
 
-        # Limpiar la pantalla de Pygame
-        screen.fill((0, 0, 0))
+        # Actualizar simulación de Pymunk
+        space.step(1 / 60.0)
 
-        # Dibujar el círculo en la nueva posición
-        pygame.draw.circle(screen, circle_color, (circle_x, circle_y), circle_radius)
+        # Dibujar en Pygame
+        screen.fill((255, 255, 255))  # Fondo blanco
+        pygame.draw.circle(screen, (0, 0, 255), (int(body.position.x), int(body.position.y)), int(circle.radius))
 
-        # Mostrar la pantalla de Pygame
+        # Actualizar pantalla
         pygame.display.flip()
-        clock.tick(30)  # Control de FPS (30 FPS en este caso)
+        clock.tick(60)  # Control de FPS
 
-        # Manejo de eventos (cerrar la ventana)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                cap.release()
-                pygame.quit()
-                cv2.destroyAllWindows()
-                exit()
+        # Mostrar imagen de cámara
+        cv2.imshow('MediaPipe Hands', image)
+        if cv2.waitKey(5) & 0xFF == 27:  # Presionar "Esc" para salir
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+    pygame.quit()
