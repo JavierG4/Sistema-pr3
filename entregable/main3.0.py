@@ -104,7 +104,7 @@ space.add(floor_body, floor_shape)
 # Función para generar un nuevo cuadrado
 def crear_cuadrado():
     x_position = random.randint(0, disp_w - 30)  # Posición horizontal aleatoria
-    y_position = disp_h - 10  # Comienza cerca del techo
+    y_position = disp_h - 30  # Comienza cerca del techo
     size = 30
     body = pymunk.Body()
     body.position = (x_position, y_position)
@@ -165,9 +165,9 @@ with HandLandmarker.create_from_options(options) as landmarker:
             pygame.draw.polygon(display, (255, 0, 255), vertices)
 
         pygame.draw.circle(display, (0, 0, 255), convert_coordinates(player_body.position), int(player_shape.radius))
-        pygame.draw.line(display, (255, 255, 0), convert_coordinates((0, disp_h)), convert_coordinates((disp_w, disp_h)), 10)
-        pygame.draw.line(display,  (255, 255, 0), (disp_w, disp_h), (disp_w, 0), 10)
-        pygame.draw.line(display,  (255, 255, 0), (0, disp_h), (0, 0), 10)
+        pygame.draw.line(display, (0, 0, 0), convert_coordinates((0, disp_h)), convert_coordinates((disp_w, disp_h)), 10)
+        pygame.draw.line(display,  (0, 0, 0), (disp_w, disp_h), (disp_w, 0), 10)
+        pygame.draw.line(display,  (0, 0, 0), (0, disp_h), (0, 0), 10)
         pygame.draw.line(display, (255, 0, 0), convert_coordinates((0, 0)), convert_coordinates((disp_w, 0)), 10)
         pygame.display.flip()
         clock.tick(60)
