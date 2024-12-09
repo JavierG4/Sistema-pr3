@@ -8,7 +8,7 @@ import cv2
 import time
 
 
-
+mp.solutions.drawing_styles.use_gpu = False
 model_path = 'hand_landmarker.task'
 
 BaseOptions = mp.tasks.BaseOptions
