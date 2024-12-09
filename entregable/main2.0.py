@@ -74,6 +74,17 @@ player_shape = pymunk.Circle(player_body, 20)
 player_shape.collision_type = collision_types["player"]
 space.add(player_body, player_shape)
 
+#Colision del fin de juego entre player y enemigo
+def fin_del_juego(arbiter, space, data):
+  print ("Fin del juego")
+  # QUit del game
+  pygame.quit()
+  return True
+
+#Colision del fin de juego entre player y enemigo
+handler2 = space.add_collision_handler(collision_types["Enemigo"], collision_types["player"])
+handler2.begin = fin_del_juego
+
 # Generar cuadrados
 for i in range(5):
     x_position = random.randint(0, disp_w)
