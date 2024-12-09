@@ -30,7 +30,7 @@ clock = pygame.time.Clock()
 
 # Configuración de Pymunk
 space = pymunk.Space()
-space.gravity = (0, -500)
+space.gravity = (0, -800)
 
 collision_types = {
     "Enemigo": 1,

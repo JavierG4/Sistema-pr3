@@ -30,13 +30,14 @@ clock = pygame.time.Clock()
 
 # Configuración de Pymunk
 space = pymunk.Space()
-space.gravity = (0, -500)
+space.gravity = (0, -800)
 
 collision_types = {
     "Enemigo": 1,
-    "player": 2,
+    "power_up": 2,
+    "bottom": 3,
+    "player": 4,
 }
-
 Vector_objetos_enemigos = []
 
 def convert_coordinates(point):
@@ -54,9 +55,20 @@ def fin_del_juego(arbiter, space, data):
     pygame.quit()
     exit()
 
+def remove_object(arbiter, space, data):
+  print ("Colisión")
+  shape = arbiter.shapes[0]
+  space.remove(shape, shape.body)
+  remove_object_by_id(Vector_objetos_enemigos, shape.id)
+  return True
+
 # Configuración de colisiones
 handler = space.add_collision_handler(collision_types["Enemigo"], collision_types["player"])
 handler.begin = fin_del_juego
+
+# Configuración de colisiones
+handler = space.add_collision_handler(collision_types["Enemigo"], collision_types["bottom"])
+handler.begin = remove_object
 
 # Pelota controlada por MediaPipe
 player_body = pymunk.Body(body_type=pymunk.Body.KINEMATIC)
@@ -64,6 +76,30 @@ player_body.position = (300, 100)
 player_shape = pymunk.Circle(player_body, 20)
 player_shape.collision_type = collision_types["player"]
 space.add(player_body, player_shape)
+
+# Body y shape de techo
+segment_body = pymunk.Body(body_type=pymunk.Body.STATIC)
+segment_shape = pymunk.Segment(segment_body, (0, disp_h), (disp_w, disp_h), 10)
+space.add(segment_body, segment_shape)
+
+# Body y shape de la pared derecha
+segment_body2 = pymunk.Body(body_type=pymunk.Body.STATIC)
+segment_shape2 = pymunk.Segment(segment_body2, (disp_w, disp_h), (disp_w, 0), 10)
+space.add(segment_body2, segment_shape2)
+
+# Body y shape de la pared izquierda
+segment_body3 = pymunk.Body(body_type=pymunk.Body.STATIC)
+segment_shape3 = pymunk.Segment(segment_body3, (0, disp_h), (0, 0), 10)
+space.add(segment_body3, segment_shape3)
+
+# Body y shape del suelo (sensor)
+floor_body = pymunk.Body(body_type=pymunk.Body.STATIC)
+floor_shape = pymunk.Segment(floor_body, (0, 0), (disp_w, 0), 10)
+floor_shape.sensor = True
+floor_shape.collision_type = collision_types["bottom"]
+space.add(floor_body, floor_shape)
+
+
 
 # Función para generar un nuevo cuadrado
 def crear_cuadrado():
@@ -87,7 +123,7 @@ options = HandLandmarkerOptions(
 
 # Tiempo para generar nuevos cuadrados
 tiempo_inicio = time.time()
-intervalo_cuadrados = 2  # Segundos entre cada cuadrado
+intervalo_cuadrados = 1  # Segundos entre cada cuadrado
 
 with HandLandmarker.create_from_options(options) as landmarker:
     cap = cv2.VideoCapture(0)
@@ -101,6 +137,11 @@ with HandLandmarker.create_from_options(options) as landmarker:
         success, image = cap.read()
         if not success:
             continue
+        
+        pygame.draw.line(display, (0, 0, 0), convert_coordinates((0, disp_h)), convert_coordinates((disp_w, disp_h)), 10)
+        pygame.draw.line(display, (0, 0, 0), (disp_w, disp_h), (disp_w, 0), 10)
+        pygame.draw.line(display, (0, 0, 0), (0, disp_h), (0, 0), 10)
+        pygame.draw.line(display, (255, 0, 0), convert_coordinates((0, 0)), convert_coordinates((disp_w, 0)), 10)
 
         # Control del tiempo para generar nuevos cuadrados
         tiempo_actual = time.time()
