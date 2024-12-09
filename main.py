@@ -69,6 +69,21 @@ def remove_object(arbiter, space, data):
 handler = space.add_collision_handler(collision_types["Enemigo"], collision_types["bottom"])
 handler.begin = remove_object
 
+running = True
+
+#Colision del fin de juego entre player y enemigo
+def fin_del_juego(arbiter, space, data):
+  print ("Fin del juego")
+  # QUit del game
+  pygame.quit()
+  exit()
+
+
+#Colision del fin de juego entre player y enemigo
+handler2 = space.add_collision_handler(collision_types["Enemigo"], collision_types["player"])
+handler2.begin = fin_del_juego
+
+
 # Body y shape de la pelota Temporal
 bodyp = pymunk.Body()
 bodyp.position = (300, 600)
@@ -76,8 +91,6 @@ shapep = pymunk.Circle(bodyp, 20)
 shapep.density = 1
 shapep.collision_type = collision_types["player"]
 space.add(bodyp, shapep)
-
-running = True
 
 #Creacion de cuadrados
 for i in range(5):

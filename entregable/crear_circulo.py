@@ -77,7 +77,7 @@ with HandLandmarker.create_from_options(options) as landmarker:
         if not success:
             print("Ignoring empty camera frame.")
             continue
-
+        
         # Procesar imagen con MediaPipe
         image = cv2.flip(image, 1)  # Voltear horizontalmente
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image)
