@@ -94,10 +94,12 @@ with HandLandmarker.create_from_options(options) as landmarker:
 
                 # Convertir coordenadas normalizadas a píxeles
                 screen_x = int(index_finger_tip.x * 640)
-                screen_y = int(index_finger_tip.y * 480)
+
+                # Mantener el circulo dentro de los límites de la pantalla
+                screen_x = max(0, min(screen_x, 640))
 
                 # Actualizar posición del círculo
-                body.position = screen_x, screen_y
+                body.position = screen_x, 240 # Posicion fija en el eje x
 
         # Actualizar simulación de Pymunk
         space.step(1 / 60.0)
