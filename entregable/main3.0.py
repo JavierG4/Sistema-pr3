@@ -123,7 +123,7 @@ options = HandLandmarkerOptions(
 
 # Tiempo para generar nuevos cuadrados
 tiempo_inicio = time.time()
-intervalo_cuadrados = 1  # Segundos entre cada cuadrado
+intervalo_cuadrados = 0.5  # Segundos entre cada cuadrado
 
 with HandLandmarker.create_from_options(options) as landmarker:
     cap = cv2.VideoCapture(0)
