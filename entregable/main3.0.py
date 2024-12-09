@@ -137,11 +137,6 @@ with HandLandmarker.create_from_options(options) as landmarker:
         success, image = cap.read()
         if not success:
             continue
-        
-        pygame.draw.line(display, (0, 0, 0), convert_coordinates((0, disp_h)), convert_coordinates((disp_w, disp_h)), 10)
-        pygame.draw.line(display, (0, 0, 0), (disp_w, disp_h), (disp_w, 0), 10)
-        pygame.draw.line(display, (0, 0, 0), (0, disp_h), (0, 0), 10)
-        pygame.draw.line(display, (255, 0, 0), convert_coordinates((0, 0)), convert_coordinates((disp_w, 0)), 10)
 
         # Control del tiempo para generar nuevos cuadrados
         tiempo_actual = time.time()
@@ -170,7 +165,10 @@ with HandLandmarker.create_from_options(options) as landmarker:
             pygame.draw.polygon(display, (255, 0, 255), vertices)
 
         pygame.draw.circle(display, (0, 0, 255), convert_coordinates(player_body.position), int(player_shape.radius))
-
+        pygame.draw.line(display, (255, 255, 0), convert_coordinates((0, disp_h)), convert_coordinates((disp_w, disp_h)), 10)
+        pygame.draw.line(display,  (255, 255, 0), (disp_w, disp_h), (disp_w, 0), 10)
+        pygame.draw.line(display,  (255, 255, 0), (0, disp_h), (0, 0), 10)
+        pygame.draw.line(display, (255, 0, 0), convert_coordinates((0, 0)), convert_coordinates((disp_w, 0)), 10)
         pygame.display.flip()
         clock.tick(60)
 
