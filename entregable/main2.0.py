@@ -50,12 +50,26 @@ def remove_object_by_id(objects, id):
             objects.remove(obj)
             break
 
+# Función para eliminar objetos al tocar el suelo
 def remove_object(arbiter, space, data):
-    print("Colisión")
+    print("Colisión con el suelo")
     shape = arbiter.shapes[0]
     space.remove(shape, shape.body)
     remove_object_by_id(Vector_objetos_enemigos, shape.id)
     return True
+
+# Función para terminar el juego al colisionar player con enemigo
+def fin_del_juego(arbiter, space, data):
+    print("Fin del juego")
+    pygame.quit()
+    exit()
+
+# Configuración de colisiones
+handler = space.add_collision_handler(collision_types["Enemigo"], collision_types["bottom"])
+handler.begin = remove_object
+
+handler2 = space.add_collision_handler(collision_types["Enemigo"], collision_types["player"])
+handler2.begin = fin_del_juego
 
 # Paredes y suelo
 floor_body = pymunk.Body(body_type=pymunk.Body.STATIC)
@@ -64,26 +78,12 @@ floor_shape.sensor = True
 floor_shape.collision_type = collision_types["bottom"]
 space.add(floor_body, floor_shape)
 
-handler = space.add_collision_handler(collision_types["Enemigo"], collision_types["bottom"])
-handler.begin = remove_object
-
 # Pelota controlada por MediaPipe
 player_body = pymunk.Body(body_type=pymunk.Body.KINEMATIC)
 player_body.position = (300, 100)
 player_shape = pymunk.Circle(player_body, 20)
 player_shape.collision_type = collision_types["player"]
 space.add(player_body, player_shape)
-
-#Colision del fin de juego entre player y enemigo
-def fin_del_juego(arbiter, space, data):
-  print ("Fin del juego")
-  # QUit del game
-  pygame.quit()
-  return True
-
-#Colision del fin de juego entre player y enemigo
-handler2 = space.add_collision_handler(collision_types["Enemigo"], collision_types["player"])
-handler2.begin = fin_del_juego
 
 # Generar cuadrados
 for i in range(5):
